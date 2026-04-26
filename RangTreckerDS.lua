@@ -1,6 +1,6 @@
-script_name("RankTracker 3.0")
+script_name("RankTracker 3.1")
 script_author("ROMAN KOVALENKO")
-script_version("3.0")
+script_version("3.1")
 
 require('lib.moonloader')
 local IS_MOBILE = MONET_VERSION ~= nil
@@ -23,7 +23,7 @@ end
 -- ================= SETTINGS =================
 local DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1495625228959875264/pDdTB8lLaS4KmWyqTtMNeKOwSjjpvXFlTmXOMX5kHdGpzoIBtKO7g2sMrhckoHB1T8CR"
 local PROFIT_PERCENT  = 0.5
-local MANAGER_NAME    = "Romantik_Moon"
+local MANAGER_NAME    = "Nick_Name"
 
 -- ================= CONFIG =================
 local worked_dir  = getWorkingDirectory():gsub('\\','/')
