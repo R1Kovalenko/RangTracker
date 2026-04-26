@@ -15,9 +15,9 @@ local ffi = require 'ffi'
 local dkok, dkjson = pcall(require, "dkjson")
 
 if IS_MOBILE then
-    print('[RankTracker] Мобильная версия через MonetLoader')
+    print('[RankTracker] РњРѕР±РёР»СЊРЅР°СЏ РІРµСЂСЃРёСЏ С‡РµСЂРµР· MonetLoader')
 else
-    print('[RankTracker] ПК версия')
+    print('[RankTracker] РџРљ РІРµСЂСЃРёСЏ')
 end
 
 -- ================= SETTINGS =================
@@ -39,9 +39,9 @@ local main_ini = inicfg.load({
 local Cache = { buyer = "", rank = "?", days = "?", price = 0, profit = 0, time = 0 }
 
 -- ================= GUI STATE =================
--- Используем imgui.new только для значений, НЕ для строк на мобиле через ffi
+-- РСЃРїРѕР»СЊР·СѓРµРј imgui.new С‚РѕР»СЊРєРѕ РґР»СЏ Р·РЅР°С‡РµРЅРёР№, РќР• РґР»СЏ СЃС‚СЂРѕРє РЅР° РјРѕР±РёР»Рµ С‡РµСЂРµР· ffi
 local show_menu = imgui.new.bool(false)
--- MonetLoader не поддерживает imgui.new.char[N](val) — используем ffi напрямую
+-- MonetLoader РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ imgui.new.char[N](val) вЂ” РёСЃРїРѕР»СЊР·СѓРµРј ffi РЅР°РїСЂСЏРјСѓСЋ
 local new_name_buf = ffi.new("char[64]")
 ffi.fill(new_name_buf, 64, 0)
 local log_scroll_bottom = false
@@ -165,12 +165,12 @@ end
 
 function getLogs()
     local log_file = worked_dir .. "/RankTracker/logs/rank_tracker.log"
-    if not doesFileExist(log_file) then return "Лог пуст." end
+    if not doesFileExist(log_file) then return "Р›РѕРі РїСѓСЃС‚." end
     local f = io.open(log_file, "r")
-    if not f then return "Ошибка открытия лога." end
+    if not f then return "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ Р»РѕРіР°." end
     local content = f:read("*a")
     f:close()
-    return content ~= "" and content or "Лог пуст."
+    return content ~= "" and content or "Р›РѕРі РїСѓСЃС‚."
 end
 
 -- ================= UPDATE FROM GITHUB =================
@@ -254,28 +254,28 @@ end
 function sendLog(buyer, rank, days, price, profit, title)
     lua_thread.create(function() sendDiscord(buyer, rank, days, price, profit, title) end)
     logToFile(string.format("[%s] %s | %s | %s KK", title, buyer, rank, fmt(price / 1000000)))
-    sampAddChatMessage("{43b581}[RankTracker] {ffffff}Отправка в Discord...", -1)
+    sampAddChatMessage("{43b581}[RankTracker] {ffffff}РћС‚РїСЂР°РІРєР° РІ Discord...", -1)
 end
 
 -- ================= DIALOG HANDLER =================
 function sampev.onShowDialog(id, style, title, button1, button2, text)
     pcall(function()
         local clean = stripColors(text)
-        if not clean:find("Общая стоимость:") then return end
+        if not clean:find("РћР±С‰Р°СЏ СЃС‚РѕРёРјРѕСЃС‚СЊ:") then return end
 
-        local buyer = clean:match("[Вв]ыбранный игрок:%s*([%w_%-]+)%(%d+%)")
-                   or clean:match("[Вв]ыбранный игрок:%s*([%w_%-]+)")
+        local buyer = clean:match("[Р’РІ]С‹Р±СЂР°РЅРЅС‹Р№ РёРіСЂРѕРє:%s*([%w_%-]+)%(%d+%)")
+                   or clean:match("[Р’РІ]С‹Р±СЂР°РЅРЅС‹Р№ РёРіСЂРѕРє:%s*([%w_%-]+)")
                    or clean:match("^([%w]+_[%w]+)")
 
-        local rank = clean:match("[Рр]анг игрока:%s*([^\n]+)")
-                  or clean:match("[Вв]ыбранный ранг:%s*([^\n]+)")
+        local rank = clean:match("[Р СЂ]Р°РЅРі РёРіСЂРѕРєР°:%s*([^\n]+)")
+                  or clean:match("[Р’РІ]С‹Р±СЂР°РЅРЅС‹Р№ СЂР°РЅРі:%s*([^\n]+)")
         if rank then
             rank = rank:gsub("%(%d+%)",""):gsub("[%.%s]+$",""):match("^%s*(.-)%s*$")
         end
 
-        local days      = clean:match("[Вв]ыбранное кол%-во дней:%s*(%d+)")
-        local total_str = clean:match("Общая стоимость:%s*([^\n]+)")
-        local profit_str= clean:match("[Вв]аш процент:%s*([^\n%(]+)")
+        local days      = clean:match("[Р’РІ]С‹Р±СЂР°РЅРЅРѕРµ РєРѕР»%-РІРѕ РґРЅРµР№:%s*(%d+)")
+        local total_str = clean:match("РћР±С‰Р°СЏ СЃС‚РѕРёРјРѕСЃС‚СЊ:%s*([^\n]+)")
+        local profit_str= clean:match("[Р’РІ]Р°С€ РїСЂРѕС†РµРЅС‚:%s*([^\n%(]+)")
 
         if buyer then buyer = buyer:gsub("[%.%s]+$", "") end
 
@@ -298,8 +298,8 @@ function sampev.onServerMessage(color, text)
     pcall(function()
         local clean = stripColors(text)
 
-        if clean:find("Вы предложили игроку") and clean:find("ранг в организации") then
-            local p_buyer, p_rank = clean:match("Вы предложили игроку ([%w_]+) .+ ранг в организации (.+)")
+        if clean:find("Р’С‹ РїСЂРµРґР»РѕР¶РёР»Рё РёРіСЂРѕРєСѓ") and clean:find("СЂР°РЅРі РІ РѕСЂРіР°РЅРёР·Р°С†РёРё") then
+            local p_buyer, p_rank = clean:match("Р’С‹ РїСЂРµРґР»РѕР¶РёР»Рё РёРіСЂРѕРєСѓ ([%w_]+) .+ СЂР°РЅРі РІ РѕСЂРіР°РЅРёР·Р°С†РёРё (.+)")
             if p_buyer then
                 Cache.buyer = p_buyer
                 Cache.rank  = p_rank or Cache.rank
@@ -307,10 +307,10 @@ function sampev.onServerMessage(color, text)
             end
         end
 
-        if clean:find("принял покупку ранга") or clean:find("принял продление ранга") then
-            local chat_buyer = clean:match("Игрок ([%w_]+)%(%d+%) принял")
-                            or clean:match("Игрок ([%w_]+) принял")
-            local price_str  = clean:match("ранга за (.+)$")
+        if clean:find("РїСЂРёРЅСЏР» РїРѕРєСѓРїРєСѓ СЂР°РЅРіР°") or clean:find("РїСЂРёРЅСЏР» РїСЂРѕРґР»РµРЅРёРµ СЂР°РЅРіР°") then
+            local chat_buyer = clean:match("РРіСЂРѕРє ([%w_]+)%(%d+%) РїСЂРёРЅСЏР»")
+                            or clean:match("РРіСЂРѕРє ([%w_]+) РїСЂРёРЅСЏР»")
+            local price_str  = clean:match("СЂР°РЅРіР° Р·Р° (.+)$")
 
             if chat_buyer and price_str then
                 price_str = price_str:gsub("[%.$]", ""):gsub("%s+", "")
@@ -331,7 +331,7 @@ function sampev.onServerMessage(color, text)
                 if amount == 0 then amount = Cache.price end
 
                 local profit   = (Cache.profit and Cache.profit > 0) and Cache.profit or math.floor(amount * PROFIT_PERCENT)
-                local op_title = clean:find("продление") and "ПРОДЛЕНИЕ РАНГА" or "ПОКУПКА РАНГА"
+                local op_title = clean:find("РїСЂРѕРґР»РµРЅРёРµ") and "РџР РћР”Р›Р•РќРР• Р РђРќР“Рђ" or "РџРћРљРЈРџРљРђ Р РђРќР“Рђ"
 
                 sendLog(chat_buyer, final_rank, final_days, amount, profit, op_title)
                 Cache = { buyer = "", rank = "?", days = "?", price = 0, profit = 0, time = 0 }
@@ -341,16 +341,16 @@ function sampev.onServerMessage(color, text)
 end
 
 -- ================= GUI =================
--- ИСПРАВЛЕНИЕ: используем imgui.OnRender (работает и в MonetLoader, и в MoonLoader)
+-- РРЎРџР РђР’Р›Р•РќРР•: РёСЃРїРѕР»СЊР·СѓРµРј imgui.OnRender (СЂР°Р±РѕС‚Р°РµС‚ Рё РІ MonetLoader, Рё РІ MoonLoader)
 imgui.OnRender(function()
     if not show_menu[0] then return end
 
-    -- Адаптивный размер окна
+    -- РђРґР°РїС‚РёРІРЅС‹Р№ СЂР°Р·РјРµСЂ РѕРєРЅР°
     local win_w = IS_MOBILE and 320 or 420
     local win_h = IS_MOBILE and 280 or 340
     imgui.SetNextWindowSize(imgui.ImVec2(win_w, win_h), imgui.Cond.FirstUseEver)
 
-    -- Центрируем окно при первом открытии
+    -- Р¦РµРЅС‚СЂРёСЂСѓРµРј РѕРєРЅРѕ РїСЂРё РїРµСЂРІРѕРј РѕС‚РєСЂС‹С‚РёРё
     local sw = imgui.GetIO().DisplaySize.x
     local sh = imgui.GetIO().DisplaySize.y
     imgui.SetNextWindowPos(
@@ -360,20 +360,20 @@ imgui.OnRender(function()
 
     local opened, show = imgui.Begin("RankTracker v3.0", show_menu)
     if opened then
-        -- Заголовок
+        -- Р—Р°РіРѕР»РѕРІРѕРє
         imgui.TextColored(imgui.ImVec4(0.26, 0.71, 0.51, 1), "RankTracker")
         imgui.SameLine()
         imgui.TextDisabled("v3.0")
         imgui.Separator()
 
-        -- Текущий менеджер
-        imgui.Text("Менеджер: ")
+        -- РўРµРєСѓС‰РёР№ РјРµРЅРµРґР¶РµСЂ
+        imgui.Text("РњРµРЅРµРґР¶РµСЂ: ")
         imgui.SameLine()
         imgui.TextColored(imgui.ImVec4(1, 0.8, 0.2, 1), getStoredName())
         imgui.Spacing()
 
-        -- Поле ввода имени
-        imgui.Text("Изменить имя:")
+        -- РџРѕР»Рµ РІРІРѕРґР° РёРјРµРЅРё
+        imgui.Text("РР·РјРµРЅРёС‚СЊ РёРјСЏ:")
         imgui.SetNextItemWidth(IS_MOBILE and 200 or 260)
         imgui.InputText("##name", new_name_buf, 64)
         imgui.SameLine()
@@ -382,17 +382,17 @@ imgui.OnRender(function()
             if name_str ~= "" then
                 main_ini.Settings.MyName = name_str
                 inicfg.save(main_ini, config_file)
-                sampAddChatMessage("{2ecc71}[RankTracker] Имя сохранено: " .. name_str, -1)
+                sampAddChatMessage("{2ecc71}[RankTracker] РРјСЏ СЃРѕС…СЂР°РЅРµРЅРѕ: " .. name_str, -1)
                 ffi.fill(new_name_buf, ffi.sizeof(new_name_buf), 0)
             end
         end
         imgui.Separator()
 
-        -- Кэш последней операции
-        imgui.Text("Последняя запись:")
+        -- РљСЌС€ РїРѕСЃР»РµРґРЅРµР№ РѕРїРµСЂР°С†РёРё
+        imgui.Text("РџРѕСЃР»РµРґРЅСЏСЏ Р·Р°РїРёСЃСЊ:")
         imgui.TextColored(imgui.ImVec4(0.6, 0.9, 1, 1),
-            string.format("  %s | %s | %s дн. | %s KK",
-                Cache.buyer ~= "" and Cache.buyer or "—",
+            string.format("  %s | %s | %s РґРЅ. | %s KK",
+                Cache.buyer ~= "" and Cache.buyer or "вЂ”",
                 Cache.rank,
                 Cache.days,
                 fmt(Cache.price / 1000000)
@@ -400,12 +400,12 @@ imgui.OnRender(function()
         )
         imgui.Separator()
 
-        -- Лог
-        imgui.Text("Лог (последние записи):")
+        -- Р›РѕРі
+        imgui.Text("Р›РѕРі (РїРѕСЃР»РµРґРЅРёРµ Р·Р°РїРёСЃРё):")
         local child_h = IS_MOBILE and 80 or 100
         imgui.BeginChild("##logs", imgui.ImVec2(0, child_h), true)
         local logs = getLogs()
-        -- Показываем только последние ~10 строк чтобы не грузить
+        -- РџРѕРєР°Р·С‹РІР°РµРј С‚РѕР»СЊРєРѕ РїРѕСЃР»РµРґРЅРёРµ ~10 СЃС‚СЂРѕРє С‡С‚РѕР±С‹ РЅРµ РіСЂСѓР·РёС‚СЊ
         local lines = {}
         for l in logs:gmatch("[^\n]+") do lines[#lines+1] = l end
         local start = math.max(1, #lines - 9)
@@ -420,18 +420,18 @@ imgui.OnRender(function()
 
         imgui.Separator()
 
-        -- Кнопки внизу
+        -- РљРЅРѕРїРєРё РІРЅРёР·Сѓ
         local btn_w = IS_MOBILE and 90 or 120
-        if imgui.Button("Тест##test", imgui.ImVec2(btn_w, 0)) then
-            sendLog("Test_User", "Media-Manager", "30", 60000000, 30000000, "ПОКУПКА РАНГА")
+        if imgui.Button("РўРµСЃС‚##test", imgui.ImVec2(btn_w, 0)) then
+            sendLog("Test_User", "Media-Manager", "30", 60000000, 30000000, "РџРћРљРЈРџРљРђ Р РђРќР“Рђ")
             log_scroll_bottom = true
         end
         imgui.SameLine()
-        if imgui.Button("Обновить##update", imgui.ImVec2(btn_w, 0)) then
+        if imgui.Button("РћР±РЅРѕРІРёС‚СЊ##update", imgui.ImVec2(btn_w, 0)) then
             lua_thread.create(updateFromGitHub)
         end
         imgui.SameLine()
-        if imgui.Button("Закрыть##close", imgui.ImVec2(btn_w, 0)) then
+        if imgui.Button("Р—Р°РєСЂС‹С‚СЊ##close", imgui.ImVec2(btn_w, 0)) then
             show_menu[0] = false
         end
     end
@@ -443,27 +443,27 @@ function main()
     while not isSampAvailable() do wait(100) end
     wait(500)
 
-    sampAddChatMessage("{43b581}[RankTracker v3.0] {ffffff}Запущен! Менеджер: " .. getStoredName(), -1)
+    sampAddChatMessage("{43b581}[RankTracker v3.0] {ffffff}Р—Р°РїСѓС‰РµРЅ! РњРµРЅРµРґР¶РµСЂ: " .. getStoredName(), -1)
 
     sampRegisterChatCommand("rtest", function()
-        sampAddChatMessage("{f1c40f}[Test] Отправка теста в Discord...", -1)
-        sendLog("Test_User", "Media-Manager", "30", 60000000, 30000000, "ПОКУПКА РАНГА")
+        sampAddChatMessage("{f1c40f}[Test] РћС‚РїСЂР°РІРєР° С‚РµСЃС‚Р° РІ Discord...", -1)
+        sendLog("Test_User", "Media-Manager", "30", 60000000, 30000000, "РџРћРљРЈРџРљРђ Р РђРќР“Рђ")
     end)
 
     sampRegisterChatCommand("rname", function(args)
         if args and args ~= "" then
             main_ini.Settings.MyName = args
             inicfg.save(main_ini, config_file)
-            sampAddChatMessage("{2ecc71}[RankTracker] Имя установлено: " .. args, -1)
+            sampAddChatMessage("{2ecc71}[RankTracker] РРјСЏ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ: " .. args, -1)
         else
-            sampAddChatMessage("{f1c40f}[RankTracker] Текущее имя: " .. getStoredName(), -1)
+            sampAddChatMessage("{f1c40f}[RankTracker] РўРµРєСѓС‰РµРµ РёРјСЏ: " .. getStoredName(), -1)
         end
     end)
 
-    -- /fmenu — открыть/закрыть меню
+    -- /fmenu вЂ” РѕС‚РєСЂС‹С‚СЊ/Р·Р°РєСЂС‹С‚СЊ РјРµРЅСЋ
     sampRegisterChatCommand("fmenu", function()
         show_menu[0] = not show_menu[0]
-        sampAddChatMessage("[RankTracker] Меню: " .. (show_menu[0] and "открыто" or "закрыто"), -1)
+        sampAddChatMessage("[RankTracker] РњРµРЅСЋ: " .. (show_menu[0] and "РѕС‚РєСЂС‹С‚Рѕ" or "Р·Р°РєСЂС‹С‚Рѕ"), -1)
     end)
 
     sampRegisterChatCommand("rupdate", function()
