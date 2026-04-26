@@ -32,7 +32,11 @@
 
 1. Скопируй файл `RankTracker.lua` в папку скриптов:
    - **MoonLoader (PC):** `moonloader/`
-   - **MonetLoader (Mobile):** `monet/scripts/`
+   - **MonetLoader (Mobile):** `/Android/media/com.arizona.game.git/monetloader/RangTreckerDS.lua`
+
+> Если лаунчер х32 то папка будет `com.arizona.game`
+> Если лаунчер х64
+`com.arizona.game.git`
 
 2. Открой файл и вставь свой Discord Webhook:
 ```lua
