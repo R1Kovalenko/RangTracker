@@ -13,7 +13,7 @@ encoding.default = 'CP1251'
 local u8 = encoding.UTF8
 
 -- ================= SETTINGS =================
-local DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1495625228959875264/pDdTB8lLaS4KmWyqTtMNeKOwSjjpvXFlTmXOMX5kHdGpzoIBtKO7g2sMrhckoHB1T8CR"
+local DISCORD_WEBHOOK = "discord_webhook"
 local PROFIT_PERCENT  = 0.5
 local MANAGER_NAME    = "Nick_Name"
 
