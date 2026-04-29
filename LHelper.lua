@@ -1,6 +1,8 @@
-script_name("RankTracker 3.4")
+script_name("LHelper 1.2")
+local CURRENT_VERSION = "1.2"
+script_name("RankTracker " .. CURRENT_VERSION)
 script_author("ROMAN KOVALENKO")
-script_version("3.4")
+script_version(CURRENT_VERSION)
 
 require('lib.moonloader')
 local IS_MOBILE = MONET_VERSION ~= nil
@@ -277,27 +279,43 @@ end
 -- ================= АВТООБНОВЛЕНИЕ =================
 function updateScript()
     lua_thread.create(function()
-        sampAddChatMessage("{f1c40f}[RankTracker] Checking updates...", -1)
+        sampAddChatMessage("{f1c40f}[RankTracker] Find UPDATE...", -1)
+        
         local ok, res = pcall(requests.get, GITHUB_VERSION_URL)
         if not ok or not res or res.status_code ~= 200 then
-            sampAddChatMessage("{e74c3c}[RankTracker] No connection!", -1); return
+            sampAddChatMessage("{e74c3c}[RankTracker] Ошибка подключения!", -1)
+            return
         end
+
         local ok2, data = pcall(decodeJson, res.text)
         if not ok2 or not data or not data.version then
-            sampAddChatMessage("{e74c3c}[RankTracker] Bad response!", -1); return
+            sampAddChatMessage("{e74c3c}[RankTracker] Ошибка Сервера (Bad JSON)!", -1)
+            return
         end
-        if data.version == thisScript().version then
-            sampAddChatMessage("{2ecc71}[RankTracker] Already latest: "..data.version, -1); return
-        end
+
+		if data.version == CURRENT_VERSION then
+			sampAddChatMessage("{2ecc71}[RankTracker] Already latest: "..data.version, -1)
+			return
+		end
+
+        sampAddChatMessage("{f1c40f}[RankTracker] Загрузка обновления v" .. data.version .. "...", -1)
+        
         local ok3, res2 = pcall(requests.get, data.url)
         if not ok3 or not res2 or res2.status_code ~= 200 then
-            sampAddChatMessage("{e74c3c}[RankTracker] Download error!", -1); return
+            sampAddChatMessage("{e74c3c}[RankTracker] Ошибка загрузки файла!", -1)
+            return
         end
-        local f = io.open(thisScript().path,"wb")
+
+        local scriptPath = thisScript().path
+        local f = io.open(scriptPath, "wb")
         if f then
-            f:write(res2.text); f:close()
-            sampAddChatMessage("{2ecc71}[RankTracker] Updated to v"..data.version.."! Reloading...", -1)
-            wait(500); thisScript():reload()
+            f:write(res2.text)
+            f:close()
+            sampAddChatMessage("{2ecc71}[RankTracker] Обновлен v" .. data.version .. "! Перезапускаюсь...", -1)
+            wait(1000)
+            thisScript():reload()
+        else
+            sampAddChatMessage("{e74c3c}[RankTracker] Не удалось обновить!", -1)
         end
     end)
 end
@@ -519,7 +537,7 @@ imgui.OnFrame(function() return show_menu[0] end, function()
             end
             imgui.PopStyleColor(3)
             imgui.SetCursorPos(imgui.ImVec2(0, math.floor(14*DPI)))
-            imgui.CenterText(u8("RankTracker  v3.3"), C.t_title)
+            imgui.CenterText(u8("RankTracker v" .. CURRENT_VERSION), C.t_title)
             imgui.SetCursorPos(imgui.ImVec2(0, math.floor(6*DPI)))
             imgui.RightText(gui_time, math.floor(10*DPI), C.t_time)
             imgui.SetCursorPos(imgui.ImVec2(0, math.floor(26*DPI)))
@@ -706,7 +724,7 @@ imgui.OnFrame(function() return show_menu[0] end, function()
                     imgui.TextColored(C.t_white, val)
                 end
                 row(L.plat_lbl, IS_MOBILE and L.plat_mob or L.plat_pc)
-                row(L.ver_lbl,  "3.3")
+                row(L.ver_lbl, CURRENT_VERSION)
                 row(L.pct_lbl,  tostring((settings.profit_pct or PROFIT_PERCENT)*100).."%")
                 row(L.dpi_lbl,  tostring(settings.custom_dpi or DPI))
                 imgui.Spacing(); imgui.Separator(); imgui.Spacing()
@@ -769,7 +787,7 @@ function main()
     wait(500)
     DPI = settings.custom_dpi or 1.0
     loadLogsFromFile()
-    sampAddChatMessage("{43b581}[RankTracker v3.4] Started! Manager: "..getManagerName(), -1)
+    sampAddChatMessage("{43b581}[RankTracker v" .. CURRENT_VERSION .. "] Started! Manager: "..getManagerName(), -1)
 
     sampRegisterChatCommand("rtest", function()
         sendLog("Test_Player","Media-Manager","30",60000000,30000000,"TEST")
