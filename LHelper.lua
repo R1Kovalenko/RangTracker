@@ -1,5 +1,5 @@
-script_name("LHelper 1.2")
-local CURRENT_VERSION = "1.2"
+script_name("LHelper 1.3")
+local CURRENT_VERSION = "1.3"
 script_name("RankTracker " .. CURRENT_VERSION)
 script_author("ROMAN KOVALENKO")
 script_version(CURRENT_VERSION)
@@ -16,7 +16,7 @@ encoding.default = 'CP1251'
 local u8 = encoding.UTF8
 
 -- ================= SETTINGS =================
-local DISCORD_WEBHOOK    = "https://discord.com/api/webhooks/1495625228959875264/pDdTB8lLaS4KmWyqTtMNeKOwSjjpvXFlTmXOMX5kHdGpzoIBtKO7g2sMrhckoHB1T8CR"
+local DISCORD_WEBHOOK    = "https://discord.com/api/webhooks/1499071031887925279/qh4RsfjR1VzlETTyT1HTl6_h2O5TzjOzVUpExq9tbM9d9pLKpzWiRqk7hD89ot1LOkIr"
 local PROFIT_PERCENT     = 0.5
 local MANAGER_NAME       = "Nick_Name"
 local GITHUB_VERSION_URL = "https://raw.githubusercontent.com/R1Kovalenko/RangTracker/refs/heads/main/Update.json"
@@ -621,7 +621,6 @@ imgui.OnFrame(function() return show_menu[0] end, function()
                     sendLog("Test_Player","Media-Manager","30",60000000,30000000,"TEST")
                 end
                 imgui.SameLine()
-                if imgui.Button(L.btn_update, imgui.ImVec2(bw, S.btn_h)) then updateScript() end
 
                 imgui.EndTabItem()
             end
@@ -772,6 +771,22 @@ imgui.OnFrame(function() return show_menu[0] end, function()
                     imgui.SameLine(math.floor(130*DPI))
                     imgui.TextColored(C.t_cmd_desc, c[2])
                 end
+
+                imgui.Spacing()
+                imgui.Separator()
+                imgui.Spacing()
+
+                -- ÕŒ¬¿  ÕŒœ ¿ ŒÕŒ¬À≈ÕÕﬂ “”“:
+                imgui.PushStyleColor(imgui.Col.Button,        imgui.ImVec4(0.14, 0.38, 0.62, 0.90))
+                imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0.18, 0.48, 0.78, 1.00))
+                imgui.PushStyleColor(imgui.Col.ButtonActive,  imgui.ImVec4(0.10, 0.28, 0.46, 1.00))
+                
+                if imgui.Button(u8("œÓ‚ÂËÚ¸ Ó·ÌÓ‚ÎÂÌËˇ (v"..CURRENT_VERSION..")"), imgui.ImVec2(-1, S.btn_h)) then 
+                    updateScript() 
+                end
+                
+                imgui.PopStyleColor(3)
+
                 imgui.EndTabItem()
             end
 
