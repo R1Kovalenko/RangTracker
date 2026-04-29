@@ -1,5 +1,5 @@
-script_name("LHelper 1.3")
-local CURRENT_VERSION = "1.3"
+script_name("LHelper 0.2")
+local CURRENT_VERSION = "0.2"
 script_name("RankTracker " .. CURRENT_VERSION)
 script_author("ROMAN KOVALENKO")
 script_version(CURRENT_VERSION)
@@ -692,104 +692,109 @@ imgui.OnFrame(function() return show_menu[0] end, function()
 
             -- ===== НАСТРОЙКИ =====
             if imgui.BeginTabItem(L.tab_settings) then
-                imgui.Spacing()
-                imgui.Spacing()
-                imgui.TextColored(C.t_label, L.name_lbl)
-                imgui.Spacing()
-                imgui.TextColored(C.t_label, L.curr_lbl)
-                imgui.SameLine()
-                imgui.TextColored(C.t_value, toUI(getManagerName()))
-                imgui.Spacing()
-                imgui.TextColored(C.t_label, L.hint_input)
-                imgui.SetNextItemWidth(S.win_w-S.pad*2-math.floor(110*DPI))
-                imgui.InputText("##ni", new_name_buf, 64)
-                imgui.SameLine()
-                imgui.PushStyleColor(imgui.Col.Button,        imgui.ImVec4(0.09,0.50,0.26,0.90))
-                imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0.12,0.65,0.33,1.00))
-                if imgui.Button(L.btn_save.."##sv", imgui.ImVec2(-1,0)) then
-                    local ns = ffi.string(new_name_buf):match("^%s*(.-)%s*$")
-                    if ns ~= "" then
-                        settings.manager_name=ns; save_settings()
-                        sampAddChatMessage("{2ecc71}[RankTracker] Name set: "..ns, -1)
-                        ffi.fill(new_name_buf,64,0)
+                -- Створюємо прокручувану область для налаштувань
+                -- imgui.ImVec2(0, 0) дозволяє області зайняти весь доступний простір
+                if imgui.BeginChild("##settings_scroll", imgui.ImVec2(0, 0), false) then
+                    imgui.Spacing()
+                    imgui.Spacing()
+                    imgui.TextColored(C.t_label, L.name_lbl)
+                    imgui.Spacing()
+                    imgui.TextColored(C.t_label, L.curr_lbl)
+                    imgui.SameLine()
+                    imgui.TextColored(C.t_value, toUI(getManagerName()))
+                    imgui.Spacing()
+                    imgui.TextColored(C.t_label, L.hint_input)
+                    
+                    -- Трохи зменшимо ширину, щоб залишити місце для скролбару збоку
+                    imgui.SetNextItemWidth(S.win_w - S.pad*2 - math.floor(130*DPI))
+                    imgui.InputText("##ni", new_name_buf, 64)
+                    imgui.SameLine()
+                    imgui.PushStyleColor(imgui.Col.Button,        imgui.ImVec4(0.09,0.50,0.26,0.90))
+                    imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0.12,0.65,0.33,1.00))
+                    if imgui.Button(L.btn_save.."##sv", imgui.ImVec2(-1,0)) then
+                        local ns = ffi.string(new_name_buf):match("^%s*(.-)%s*$")
+                        if ns ~= "" then
+                            settings.manager_name=ns; save_settings()
+                            sampAddChatMessage("{2ecc71}[RankTracker] Name set: "..ns, -1)
+                            ffi.fill(new_name_buf,64,0)
+                        end
                     end
-                end
-                imgui.PopStyleColor(2)
-                imgui.Spacing(); imgui.Separator(); imgui.Spacing()
+                    imgui.PopStyleColor(2)
+                    imgui.Spacing(); imgui.Separator(); imgui.Spacing()
 
-                local function row(lbl, val)
-                    imgui.TextColored(C.t_label, lbl)
+                    local function row(lbl, val)
+                        imgui.TextColored(C.t_label, lbl)
+                        imgui.SameLine(math.floor(160*DPI))
+                        imgui.TextColored(C.t_white, val)
+                    end
+                    row(L.plat_lbl, IS_MOBILE and L.plat_mob or L.plat_pc)
+                    row(L.ver_lbl, CURRENT_VERSION)
+                    row(L.pct_lbl,  tostring((settings.profit_pct or PROFIT_PERCENT)*100).."%")
+                    row(L.dpi_lbl,  tostring(settings.custom_dpi or DPI))
+                    imgui.Spacing(); imgui.Separator(); imgui.Spacing()
+
+                    imgui.TextColored(C.t_label, u8("Ширина окна:"))
                     imgui.SameLine(math.floor(160*DPI))
-                    imgui.TextColored(C.t_white, val)
+                    imgui.TextColored(C.t_white, tostring(slider_w[0]).." px")
+                    imgui.SetNextItemWidth(-1)
+                    if imgui.SliderInt("##ww", slider_w, 340, 1500) then recalcS() end
+                    imgui.Spacing()
+
+                    imgui.TextColored(C.t_label, u8("Высота окна:"))
+                    imgui.SameLine(math.floor(160*DPI))
+                    imgui.TextColored(C.t_white, tostring(slider_h[0]).." px")
+                    imgui.SetNextItemWidth(-1)
+                    if imgui.SliderInt("##wh", slider_h, 300, 1500) then recalcS() end
+                    imgui.Spacing()
+
+                    imgui.PushStyleColor(imgui.Col.Button,        imgui.ImVec4(0.09,0.50,0.26,0.90))
+                    imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0.12,0.65,0.33,1.00))
+                    if imgui.Button(u8("Сохранить размер##sz"), imgui.ImVec2(-1, S.btn_h)) then
+                        settings.win_w=slider_w[0]; settings.win_h=slider_h[0]; save_settings()
+                        sampAddChatMessage("{2ecc71}[RankTracker] Size saved: "..slider_w[0].."x"..slider_h[0], -1)
+                    end
+                    imgui.PopStyleColor(2)
+                    imgui.Spacing()
+
+                    if imgui.Button(L.btn_reset_dpi, imgui.ImVec2(-1, S.btn_h)) then
+                        settings.autofind_dpi=false; save_settings(); apply_dpi()
+                        DPI=settings.custom_dpi
+                        sampAddChatMessage("{f1c40f}[RankTracker] DPI reset: "..tostring(DPI), -1)
+                    end
+                    imgui.Spacing(); imgui.Separator(); imgui.Spacing()
+
+                    imgui.TextColored(C.t_label, L.cmd_lbl)
+                    imgui.Spacing()
+                    local cmds = {
+                        {"/fmenu",   u8("Открыть/закрыть меню")},
+                        {"/rtest",   u8("Тестовая отправка в Discord")},
+                        {"/rname X", u8("Установить имя менеджера")},
+                        {"/rupdate", u8("Обновить скрипт")},
+                    }
+                    for _, c in ipairs(cmds) do
+                        imgui.TextColored(C.t_cmd, c[1])
+                        imgui.SameLine(math.floor(130*DPI))
+                        imgui.TextColored(C.t_cmd_desc, c[2])
+                    end
+
+                    imgui.Spacing()
+                    imgui.Separator()
+                    imgui.Spacing()
+
+                    imgui.PushStyleColor(imgui.Col.Button,        imgui.ImVec4(0.14, 0.38, 0.62, 0.90))
+                    imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0.18, 0.48, 0.78, 1.00))
+                    imgui.PushStyleColor(imgui.Col.ButtonActive,  imgui.ImVec4(0.10, 0.28, 0.46, 1.00))
+                    
+                    if imgui.Button(u8("Проверить обновления (v"..CURRENT_VERSION..")"), imgui.ImVec2(-1, S.btn_h)) then 
+                        updateScript() 
+                    end
+                    imgui.PopStyleColor(3)
+                    imgui.Spacing() 
+
+                    imgui.EndChild()
                 end
-                row(L.plat_lbl, IS_MOBILE and L.plat_mob or L.plat_pc)
-                row(L.ver_lbl, CURRENT_VERSION)
-                row(L.pct_lbl,  tostring((settings.profit_pct or PROFIT_PERCENT)*100).."%")
-                row(L.dpi_lbl,  tostring(settings.custom_dpi or DPI))
-                imgui.Spacing(); imgui.Separator(); imgui.Spacing()
-
-                imgui.TextColored(C.t_label, u8("Ширина окна:"))
-                imgui.SameLine(math.floor(160*DPI))
-                imgui.TextColored(C.t_white, tostring(slider_w[0]).." px")
-                imgui.SetNextItemWidth(-1)
-                if imgui.SliderInt("##ww", slider_w, 340, 1500) then recalcS() end
-                imgui.Spacing()
-
-                imgui.TextColored(C.t_label, u8("Высота окна:"))
-                imgui.SameLine(math.floor(160*DPI))
-                imgui.TextColored(C.t_white, tostring(slider_h[0]).." px")
-                imgui.SetNextItemWidth(-1)
-                if imgui.SliderInt("##wh", slider_h, 300, 1500) then recalcS() end
-                imgui.Spacing()
-
-                imgui.PushStyleColor(imgui.Col.Button,        imgui.ImVec4(0.09,0.50,0.26,0.90))
-                imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0.12,0.65,0.33,1.00))
-                if imgui.Button(u8("Сохранить размер##sz"), imgui.ImVec2(-1, S.btn_h)) then
-                    settings.win_w=slider_w[0]; settings.win_h=slider_h[0]; save_settings()
-                    sampAddChatMessage("{2ecc71}[RankTracker] Size saved: "..slider_w[0].."x"..slider_h[0], -1)
-                end
-                imgui.PopStyleColor(2)
-                imgui.Spacing()
-
-                if imgui.Button(L.btn_reset_dpi, imgui.ImVec2(-1, S.btn_h)) then
-                    settings.autofind_dpi=false; save_settings(); apply_dpi()
-                    DPI=settings.custom_dpi
-                    sampAddChatMessage("{f1c40f}[RankTracker] DPI reset: "..tostring(DPI), -1)
-                end
-                imgui.Spacing(); imgui.Separator(); imgui.Spacing()
-
-                imgui.TextColored(C.t_label, L.cmd_lbl)
-                imgui.Spacing()
-                local cmds = {
-                    {"/fmenu",   u8("Открыть/закрыть меню")},
-                    {"/rtest",   u8("Тестовая отправка в Discord")},
-                    {"/rname X", u8("Установить имя менеджера")},
-                    {"/rupdate", u8("Обновить скрипт")},
-                }
-                for _, c in ipairs(cmds) do
-                    imgui.TextColored(C.t_cmd, c[1])
-                    imgui.SameLine(math.floor(130*DPI))
-                    imgui.TextColored(C.t_cmd_desc, c[2])
-                end
-
-                imgui.Spacing()
-                imgui.Separator()
-                imgui.Spacing()
-
-                -- НОВА КНОПКА ОНОВЛЕННЯ ТУТ:
-                imgui.PushStyleColor(imgui.Col.Button,        imgui.ImVec4(0.14, 0.38, 0.62, 0.90))
-                imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0.18, 0.48, 0.78, 1.00))
-                imgui.PushStyleColor(imgui.Col.ButtonActive,  imgui.ImVec4(0.10, 0.28, 0.46, 1.00))
-                
-                if imgui.Button(u8("Проверить обновления (v"..CURRENT_VERSION..")"), imgui.ImVec2(-1, S.btn_h)) then 
-                    updateScript() 
-                end
-                
-                imgui.PopStyleColor(3)
-
                 imgui.EndTabItem()
             end
-
             imgui.EndTabBar()
         end
     end
